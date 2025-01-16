@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import Item_form
+
 
 class signup_form(UserCreationForm):
     email = forms.EmailField(label="", widget = forms.TextInput(attrs = {'class':'form-control', 'placeholder':'e-mail address'}))
@@ -28,7 +30,3 @@ class signup_form(UserCreationForm):
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'	
-
-        
-        
-        
