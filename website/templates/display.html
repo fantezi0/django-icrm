@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content%}
+<div class="col-md-6 offset-md-3">
+<br/>
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for x in items%}
+      <tr>
+        <th scope="row">{{x.id}}</th>
+        <td>{{x.name}}</td>
+        <td>{{x.weight}}</td>
+        <td>{{x.quantity}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+
+{% endblock %}

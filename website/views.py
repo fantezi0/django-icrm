@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import signup_form, Item_form 
+from .forms import signup_form, Item_form
+from .models import Item
+
 
 
 def home(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    return render(request, './home.html', {})
+    else:
+        return render(request, './home.html', {})
 
 
 def login_user(request):
@@ -72,3 +75,10 @@ def add_item(request):
     else:
         form = Item_form()
         return render(request, './add_item.html', {'form': form})
+    
+def display(request):
+    items = Item.objects.all().values()
+    if not request.user.is_authenticated:
+        return redirect('login')
+    else:
+        return render(request, './display.html', {'items' : items})

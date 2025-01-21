@@ -8,7 +8,9 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+    
 class Item_form(ModelForm):
     class Meta:
         model = Item
         fields = ['name', 'quantity', 'weight']
+        
