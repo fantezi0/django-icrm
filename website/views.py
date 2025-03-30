@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import signup_form, Item_form
 from .models import Item
-
+from .hashmap import HashMapManager
+from .signals import hash_map
 
 
 def home(request):
@@ -66,7 +67,8 @@ def add_item(request):
     if request.method == 'POST':
         item = Item_form(request.POST)
         if item.is_valid():
-            new_item =item.save()
+            new_item = Item.objects.create(**item.cleaned_data)
+            hash_map.register_item(new_item)
             messages.success(request, f"{new_item.name} added successfully... ")
             return redirect("add_item")
         else:
@@ -82,3 +84,27 @@ def display(request):
         return redirect('login')
     else:
         return render(request, './display.html', {'items' : items})
+
+def ed_item(request, id):
+    item = get_object_or_404(Item, id = id)
+    form = Item_form(instance = item)
+    if request.method == 'POST':
+        if request.POST.get('action') == "edit":
+            item = Item_form(request.POST, instance = item)
+            if item.is_valid():
+                edited_item = item.save()
+                messages.success(request, f"{edited_item.name} edited successfully... ")
+                return redirect("display")
+            else:
+                messages.success(request, "Error editing item... ")
+                return redirect("display")
+        if request.POST.get('action') == "delete":
+            delet_item(request, item)
+            return redirect("display")
+    else:
+        return render (request, './ed_item.html', {'form' : form})
+    
+def delet_item(request, item):
+     item.delete()
+     return messages.success(request, f"{item.name} deleted successfully... ")
+        

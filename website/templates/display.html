@@ -7,7 +7,6 @@
 <table class="table">
     <thead>
       <tr>
-        <th scope="col">ID</th>
         <th scope="col">Name</th>
         <th scope="col">Weight</th>
         <th scope="col">Quantity</th>
@@ -16,8 +15,8 @@
     <tbody>
     {% for x in items%}
       <tr>
-        <th scope="row">{{x.id}}</th>
-        <td>{{x.name}}</td>
+<!--        <th scope="row">{{x.id}}</th>-->
+        <td><a href = "{% url 'ed_item' x.id %}">{{x.name}}</a></td>
         <td>{{x.weight}}</td>
         <td>{{x.quantity}}</td>
       </tr>

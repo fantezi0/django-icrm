@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content%}
+<div class="col-md-6 offset-md-3">
+<br/>
+
+<form method = "POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type = "submit" name = "action" value = "edit">submit</button>
+    <button type = "submit" name = "action" value = "delete">delet</button>
+</form>
+{%for message in messages %}
+    {{message}}
+{% endfor %}
+{% endblock %}
