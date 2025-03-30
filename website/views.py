@@ -68,7 +68,6 @@ def add_item(request):
         item = Item_form(request.POST)
         if item.is_valid():
             new_item = Item.objects.create(**item.cleaned_data)
-            hash_map.register_item(new_item)
             messages.success(request, f"{new_item.name} added successfully... ")
             return redirect("add_item")
         else:
@@ -83,7 +82,7 @@ def display(request):
     if not request.user.is_authenticated:
         return redirect('login')
     else:
-        return render(request, './display.html', {'items' : items})
+        return render(request, 'display.html', {'items' : items})
 
 def ed_item(request, id):
     item = get_object_or_404(Item, id = id)
@@ -105,6 +104,9 @@ def ed_item(request, id):
         return render (request, './ed_item.html', {'form' : form})
     
 def delet_item(request, item):
-     item.delete()
-     return messages.success(request, f"{item.name} deleted successfully... ")
-        
+    if request.method == "POST":
+        try :
+            item.delete()
+            return messages.success(request, f"{item.name} deleted successfully... ")
+        except Item.DoesNotExist:
+            return messages.success(request, "Error deleting item... ")
