@@ -3,9 +3,22 @@
 <div class="col-md-6 offset-md-3">
 <br/>
 
+
 <form method = "POST">
     {% csrf_token %}
     {{ form.as_p }}
     <button type = "submit">submit</button>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {% if message.tags == "info" %}
+                    <div class="col-md-6 offset-md-3">  
+                    <p> do you want to edit this item? </p>
+                    <button type = "submit" name = "action" value = "yes">yes</button>
+                    <button type = "submit" name = "action" value = "no">no</button>
+                {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
 </form>
 {% endblock %}

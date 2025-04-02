@@ -15,8 +15,7 @@
     <tbody>
     {% for x in items%}
       <tr>
-<!--        <th scope="row">{{x.id}}</th>-->
-        <td><a href = "{% url 'ed_item' x.id %}">{{x.name}}</a></td>
+        <td><a href = "{% url 'ed_item' x.id%}">{{x.name}}</a></td>
         <td>{{x.weight}}</td>
         <td>{{x.quantity}}</td>
       </tr>

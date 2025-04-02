@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import signup_form, Item_form
+from .forms import signup_form, ItemForm 
 from .models import Item
 from .hashmap import HashMapManager
-from .signals import hash_map
+
+
 
 
 def home(request):
@@ -62,51 +64,78 @@ def signup_user(request):
     else:
         form = signup_form()
         return render(request, './signup.html', {'form': form})
-    
+
+@login_required  
 def add_item(request):
     if request.method == 'POST':
-        item = Item_form(request.POST)
-        if item.is_valid():
-            new_item = Item.objects.create(**item.cleaned_data)
-            messages.success(request, f"{new_item.name} added successfully... ")
-            return redirect("add_item")
+        form = ItemForm(request.POST) 
+        
+        if form.is_valid():
+            
+            if form.instance.name in Item.objects.values_list('name', flat=True):
+                messages.error(request, "Item already exists... ")
+                messages.info(request, f"do you want to edit {form.instance.name} instead?")  
+                action = request.POST.get('action')
+                if action == "yes":
+                    ed_item(request, form.instance.id)
+                else:
+                    return redirect("add_item")
+            else:
+                form.save()
+                HashMapManager.add_to_map(form.instance)
+                messages.success(request, f"{form.instance.name} added successfully... ")
+                return redirect("add_item")
         else:
             messages.success(request, "Error adding item... ")
             return redirect("add_item")  
     else:
-        form = Item_form()
+        form = ItemForm() 
         return render(request, './add_item.html', {'form': form})
     
+@login_required     
 def display(request):
     items = Item.objects.all().values()
     if not request.user.is_authenticated:
         return redirect('login')
     else:
         return render(request, 'display.html', {'items' : items})
-
-def ed_item(request, id):
-    item = get_object_or_404(Item, id = id)
-    form = Item_form(instance = item)
-    if request.method == 'POST':
-        if request.POST.get('action') == "edit":
-            item = Item_form(request.POST, instance = item)
-            if item.is_valid():
-                edited_item = item.save()
-                messages.success(request, f"{edited_item.name} edited successfully... ")
-                return redirect("display")
-            else:
-                messages.success(request, "Error editing item... ")
-                return redirect("display")
-        if request.POST.get('action') == "delete":
-            delet_item(request, item)
-            return redirect("display")
-    else:
-        return render (request, './ed_item.html', {'form' : form})
     
-def delet_item(request, item):
+@login_required  
+def ed_item(request, id):
+    item = get_object_or_404(Item, id=id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == "edit":
+            form = ItemForm(request.POST, instance=item)
+            if form.is_valid():
+                edited_item = form.save()
+                HashMapManager.add_to_map(edited_item)  # Update the hashmap
+                messages.success(request, f"{edited_item.name} edited successfully... ")
+            else:
+                messages.error(request, "Error editing item... ")
+        elif action == "delete":
+            delete_item(request, item)
+        return redirect("display")
+    else:
+        form = ItemForm(instance=item)
+        return render(request, './ed_item.html', {'form': form})
+
+def delete_item(request, item):
     if request.method == "POST":
         try :
             item.delete()
             return messages.success(request, f"{item.name} deleted successfully... ")
         except Item.DoesNotExist:
             return messages.success(request, "Error deleting item... ")
+
+@login_required
+def search_items(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '').strip()
+        if query:
+            result = Item.objects.get(name=query)
+            if result:
+                return render(request, 'search_results.html', {'items': [result]})
+            else:
+                messages.info(request, "No items found.")
+        return render(request, 'search_results.html', {'items': []})

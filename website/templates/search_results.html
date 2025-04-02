@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content%}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    {% if items %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Weight</th>
+                <th scope="col">Quantity</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for x in items%}
+            <tr>
+                <td><a href = "{% url 'ed_item' x.id%}">{{x.name}}</a></td>
+                <td>{{x.weight}}</td>
+                <td>{{x.quantity}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No items found.</p>
+    {% endif %}
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>
+{% endblock %}

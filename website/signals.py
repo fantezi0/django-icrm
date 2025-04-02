@@ -5,11 +5,10 @@ from .models import Item
 from .hashmap import HashMapManager
 
 # Create a HashMapManager instance
-hash_map = HashMapManager()
 
 # Register an item in the HashMapManager on item creation
 @receiver(post_save, sender=Item)
 def update_hash_map(sender, instance, created, **kwargs):
-    print(f"signal triggered for {instance.name}")
+    print(f"signal triggered for {instance}")
     if created:
-        hash_map.register_item(instance)
+        HashMapManager.add_to_map(instance)
